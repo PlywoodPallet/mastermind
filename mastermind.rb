@@ -5,9 +5,8 @@ class Game
     end
 
     def play_game
-        puts "Guess the computer's 4-digit code. Each digit is between 1-6"
+        puts "Guess a random 4-digit code. Each digit is between 1-6"
  
-        @board.render_board
         while true
             
             
@@ -77,6 +76,8 @@ class Board
         #         feedback_array[i] = "()"
 
         # end
+
+        guess.store_feedback(feedback_array)
     end
 
     def store_guess(guess)
@@ -85,9 +86,17 @@ class Board
 
     # Number of guesses, feedback by 
     def render_board
+        puts ""
+        puts "Guesses: "
+
         for i in 0...@guesses.length do
             puts "#{i+1}: #{@guesses[i].to_s}" #unsure why I need to write to_s, shouldnt this access the to_s method by default?
         end
+        puts ""
+        puts "Legend: "
+        puts "[] = correct digit and position"
+        puts "() = digit exists but incorrect position"
+        puts ""
     end
 end
 
@@ -114,11 +123,30 @@ class Guess
         @feedback_array = feedback_array
     end
 
+    # Important function so Board#render_board works. @guess_array and @feedback_array are combined a simple way to read the result of a guess
     def to_s
-        guess_array
+        output_array = []
+
+        for i in 0...guess_array.length
+            unless feedback_array[i] == nil
+                feedback_prefix = feedback_array[i][0,1]
+                feedback_postfix = feedback_array[i][1,1]
+                output = feedback_prefix + guess_array[i].to_s + feedback_postfix
+                output_array.push(output)
+            else
+                output_array.push(guess_array[i])
+            end
+        end
+        output_array.join(', ')
     end
 
 end
 
-a_game = Game.new
-a_game.play_game
+ a_game = Game.new
+ a_game.play_game
+
+
+# guess = Guess.new("1234")
+# guess.store_feedback(["[]", "[]", nil, nil])
+
+# p guess.to_s
