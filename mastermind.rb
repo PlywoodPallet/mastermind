@@ -10,6 +10,7 @@ class Game
         
     end
 
+    # TODO: this method is too long and needs to be split up into smaller methods for readability
     def play_computer_guessing_game
         puts "Input a random 4-digit code for the computer to guess. Each digit is between 1-6"
 
@@ -26,8 +27,9 @@ class Game
         #     end
         # end
         # @board.user_defined_code(code_string)
+        @board.user_defined_code("5566")
 
-        @board.set_random_code
+        # @board.set_random_code
         p "Random code: #{@board.correct_code}"
 
         # start with three guesses: 1122, 3344, 5566
@@ -42,11 +44,13 @@ class Game
             
             # For the off chance that the starting guesses are the correct code OR if there are too many starting guesses
             if correct_match
+                @board.render_board
                 puts "Computer guessed the code: #{@board.correct_code.join}"
-                break
+                exit
             elsif @board.number_of_guesses >= 12
+                @board.render_board
                 puts "Computer ran out of guesses"
-                break
+                exit
             end
         end
 
@@ -80,7 +84,7 @@ class Game
         # keep guessing using probable_code_options elements until a complete match ("[]") or run out of guesses
         # The current algorithm picks a random digit from an array of possible digits and is brute force. The algorithm wastes guesses by repeating digits in positions that haven't worked in the past. A smarter algorithm would store the positions of each soft equivalence "()" and ignore these positions for future guesses
 
-        # TODO: Add processing of analyzing soft equivalence "()" to make the algorithm more intelligent. 
+        # TODO: Add processing of analyzing soft equivalence "()" to make the algorithm more intelligent
         while true
 
             # create a new guess based on known_code_array with "nil" entries replaced with random elements in probable_code_options
@@ -132,10 +136,6 @@ class Game
                 break
             end
         end
-        
-        
-
-
     end
 
     def play_human_guessing_game
@@ -323,9 +323,10 @@ class Guess
 
 end
 
+while true do
 a_game = Game.new
 a_game.play_computer_guessing_game
-
+end
 
 # a_board = Board.new
 # a_board.user_defined_code("6663")
