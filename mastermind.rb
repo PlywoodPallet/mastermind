@@ -27,7 +27,7 @@ class Game
         #         break
         #     end
         # end
-        @board.user_defined_code("4615")
+        @board.user_defined_code("6663")
 
         # @board.set_random_code
         p "Random code: #{@board.correct_code}"
@@ -60,7 +60,6 @@ class Game
         # soft brackets () -> add number to a probable_code_options array
 
         known_code_array = Array.new(4) {nil}
-        nil_indexes = []
         probable_code_options = []
         guess_history = @board.guess_history
 
@@ -80,29 +79,31 @@ class Game
         end
 
 
-         
+        @board.render_board
 
 
         # keep guessing using probable_code_options elements until a complete match or run out of guesses
-        # nil indexes = index of each nil item in known_code_array
-        nil_indexes = known_code_array.each_index.select { |index| known_code_array[index] == nil}
-
         while true
 
             # create a new guess based on known_code_array with "nil" entries replaced with random elements in probable_code_options
-            temp_probable_code_options = probable_code_options.clone
+            # create a working copy of each array because a correct guess is not guaranteed
+            p temp_probable_code_options = probable_code_options.clone
             new_guess_array = known_code_array.clone
 
-            # for each nil index, pick a probable code at random to guess at that specific index
-            nil_indexes.each do |nil_index|
-                # pick a random digit then delete from the temp array so it cannot be chosen again
-                random_code_digit = temp_probable_code_options.sample
-                # temp_probable_code_options.delete_at(temp_probable_code_options.index(random_code_digit))
+            new_guess_array.each_with_index do |digit, index|
+                if digit == nil
+                    # pick a random digit from the array of possible options
+                    random_code_digit = temp_probable_code_options.sample
 
-                new_guess_array[nil_index] = random_code_digit
+                    # delete only one instance of random_code_digit from temp_probable_code_options
+                    # temp_probable_code_options.delete_at(temp_probable_code_options.index(random_code_digit))
+
+                    # try this random digit in the new guess
+                    new_guess_array[index] = random_code_digit
+                end
             end
 
-            new_guess_string = new_guess_array.join
+            p new_guess_string = new_guess_array.join
             new_guess_object = Guess.new(new_guess_string)
 
 
@@ -114,6 +115,23 @@ class Game
             
             correct_match = @board.check_guess(new_guess_object)
             @board.store_guess(new_guess_object)
+
+            # check feedback of created guess, does it have hard equivalence? If so update the known_code_array for the next iteration
+            new_guess_guess_array = new_guess_object.guess_array
+            new_guess_feedback_array = new_guess_object.feedback_array
+    
+            for j in 0...new_guess_guess_array.length
+                if new_guess_feedback_array[j] == nil
+                    next
+                elsif new_guess_feedback_array[j] == "[]"
+                    known_code_array[j] = new_guess_guess_array[j]
+                    
+                    # delete the correct digit (only one instance) from the probable_code_options array. Only if the element exists!
+                    if probable_code_options.include? new_guess_guess_array[j]
+                        probable_code_options.delete_at(probable_code_options.index(new_guess_guess_array[j]))
+                    end
+                end
+            end
 
             if correct_match
                 @board.render_board
