@@ -25,10 +25,10 @@ class Game
         #         break
         #     end
         # end
-        # @board.user_defined_code("6663")
+        # @board.user_defined_code(code_string)
 
-         @board.set_random_code
-         "Random code: #{@board.correct_code}"
+        @board.set_random_code
+        p "Random code: #{@board.correct_code}"
 
         # start with three guesses: 1122, 3344, 5566
         starting_guesses = []
@@ -70,6 +70,7 @@ class Game
                     next
                 elsif feedback_array[i] == "[]"
                     known_code_array[i] = guess_array[i]
+                    probable_code_options.push(guess_array[i]) # creates unnecessary guesses for some codes, but critical for codes like "1111"
                 elsif feedback_array[i] == "()"
                     probable_code_options.push(guess_array[i])
                 end
