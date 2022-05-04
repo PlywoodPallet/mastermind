@@ -157,6 +157,7 @@ class Game
         end
     end
 
+    # Game where player guesses a randomly generated code by the computer
     def play_human_guessing_game
         
         # Generate a random code for the human to guess
@@ -200,10 +201,10 @@ class Board
     def initialize
         @correct_code = []
         @guess_history = []
-        @feedback_history = [] # delete this if using @guess_history works out instead
+        @feedback_history = []
     end
 
-    # generate 4-digit random number with each digit between 1-6
+    # Generate 4-digit random number with each digit between 1-6
     def set_random_code
         random_code = []
         
@@ -214,6 +215,7 @@ class Board
         @correct_code = random_code
     end
 
+    # For setting the correct_code by the player
     def user_defined_code(code_string)
         # need to convert input to string, split into array of chars, then convert each element back to integer
         code_array = code_string.split('')
@@ -222,18 +224,18 @@ class Board
         @correct_code = code_array
     end
 
-    # return the number of guesses made
+    # Return the number of guesses made
     def number_of_guesses
         @guess_history.length
     end
 
+    # Check a guess object against the correct_code. Return feedback into the guess object
+    # Feedback of "[]" means hard equivalence with correct_code (correct code AND correct position)
+    # Feedback of "()" means soft equivalence with correct_code (correct code BUT incorrect position)
     def check_guess(guess_object)
-
-        
-
         guess_array = guess_object.guess_array
         feedback_array = Array.new(4) {nil}
-        unmatched_code_tally = @correct_code.tally # critical for pass #2, so that it ignores pass #1 matches
+        unmatched_code_tally = @correct_code.tally # critical for pass #2
         
         # Pass #1: check for correct code AND correct position
         for i in 0...4
@@ -272,7 +274,7 @@ class Board
         if feedback_array == ['[]', '[]', '[]', '[]'] then true else false end
     end
 
-    # store a guess in the history of guesses
+    # Store a guess in the history of guesses
     def store_guess(guess)
         @guess_history.push(guess)
     end
@@ -299,7 +301,7 @@ class Guess
     attr_reader :guess_array
     attr_reader :feedback_array
     
-    # accepts user input directly
+    # accepts user input directly as a string
     def initialize(guess_string)
 
         # need to convert input to string, split into array of chars, then convert each element back to integer
@@ -318,7 +320,7 @@ class Guess
         @feedback_array = feedback_array
     end
 
-    # Important function so Board#render_board works. @guess_array and @feedback_array are combined a simple way to display the result of a guess
+    # Important function so Board#render_board works. @guess_array and @feedback_array are combined a simple way to display the result of a guess. If code is 1234 and guess is 4333, the returned string is (4) 3 [3] 3
     def to_s
         output_array = []
 
