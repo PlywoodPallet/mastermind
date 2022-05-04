@@ -1,3 +1,5 @@
+require 'pry-byebug'
+
 class Game
     def initialize
         @player_name = "Bob"
@@ -25,9 +27,9 @@ class Game
         #         break
         #     end
         # end
-        # @board.user_defined_code("1234")
+        @board.user_defined_code("4615")
 
-        @board.set_random_code
+        # @board.set_random_code
         p "Random code: #{@board.correct_code}"
 
         # start with three guesses: 1122, 3344, 5566
@@ -39,8 +41,7 @@ class Game
         starting_guesses.each do |guess_object|
             correct_match = @board.check_guess(guess_object)
             @board.store_guess(guess_object)
-            @board.render_board
-
+            
             # For the off chance that the starting guesses are the correct code OR if there are too many starting guesses
             if correct_match
                 puts "Computer guessed the code: #{@board.correct_code.join}"
@@ -113,16 +114,15 @@ class Game
             
             correct_match = @board.check_guess(new_guess_object)
             @board.store_guess(new_guess_object)
-            @board.render_board
 
             if correct_match
+                @board.render_board
                 puts "Computer guessed the code: #{@board.correct_code.join}"
                 break
             elsif @board.number_of_guesses >= 12
+                @board.render_board
                 puts "Computer ran out of guesses"
                 break
-            else
-                # incorrect_guess_history.push(new_guess_object)
             end
         end
         
@@ -223,7 +223,7 @@ class Board
             
             # perform this check first to prevent a nil > 0 comparison below 
             if tally_result == nil
-                break
+                next
             elsif tally_result > 0
                 feedback_array[i] = "()"
 
@@ -300,6 +300,11 @@ class Guess
             end
         end
         output_array.join(' ')
+    end
+
+    # helper function for finding bugs
+    def debug
+        "Guess: #{guess_array} Feedback: #{feedback_array}"
     end
 
 end
