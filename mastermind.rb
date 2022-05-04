@@ -10,8 +10,6 @@ class Game
         
     end
 
-
-
     def play_computer_guessing_game
         puts "Input a random 4-digit code for the computer to guess. Each digit is between 1-6"
 
@@ -27,10 +25,10 @@ class Game
         #         break
         #     end
         # end
-        @board.user_defined_code("6663")
+        # @board.user_defined_code("6663")
 
-        # @board.set_random_code
-        p "Random code: #{@board.correct_code}"
+         @board.set_random_code
+         "Random code: #{@board.correct_code}"
 
         # start with three guesses: 1122, 3344, 5566
         starting_guesses = []
@@ -78,16 +76,15 @@ class Game
             end
         end
 
+        # keep guessing using probable_code_options elements until a complete match ("[]") or run out of guesses
+        # The current algorithm picks a random digit from an array of possible digits and is brute force. The algorithm wastes guesses by repeating digits in positions that haven't worked in the past. A smarter algorithm would store the positions of each soft equivalence "()" and ignore these positions for future guesses
 
-        @board.render_board
-
-
-        # keep guessing using probable_code_options elements until a complete match or run out of guesses
+        # TODO: Add processing of analyzing soft equivalence "()" to make the algorithm more intelligent. 
         while true
 
             # create a new guess based on known_code_array with "nil" entries replaced with random elements in probable_code_options
             # create a working copy of each array because a correct guess is not guaranteed
-            p temp_probable_code_options = probable_code_options.clone
+            temp_probable_code_options = probable_code_options.clone
             new_guess_array = known_code_array.clone
 
             new_guess_array.each_with_index do |digit, index|
@@ -95,15 +92,12 @@ class Game
                     # pick a random digit from the array of possible options
                     random_code_digit = temp_probable_code_options.sample
 
-                    # delete only one instance of random_code_digit from temp_probable_code_options
-                    # temp_probable_code_options.delete_at(temp_probable_code_options.index(random_code_digit))
-
                     # try this random digit in the new guess
                     new_guess_array[index] = random_code_digit
                 end
             end
 
-            p new_guess_string = new_guess_array.join
+            new_guess_string = new_guess_array.join
             new_guess_object = Guess.new(new_guess_string)
 
 
@@ -119,17 +113,11 @@ class Game
             # check feedback of created guess, does it have hard equivalence? If so update the known_code_array for the next iteration
             new_guess_guess_array = new_guess_object.guess_array
             new_guess_feedback_array = new_guess_object.feedback_array
-    
             for j in 0...new_guess_guess_array.length
                 if new_guess_feedback_array[j] == nil
                     next
                 elsif new_guess_feedback_array[j] == "[]"
                     known_code_array[j] = new_guess_guess_array[j]
-                    
-                    # delete the correct digit (only one instance) from the probable_code_options array. Only if the element exists!
-                    if probable_code_options.include? new_guess_guess_array[j]
-                        probable_code_options.delete_at(probable_code_options.index(new_guess_guess_array[j]))
-                    end
                 end
             end
 
@@ -220,12 +208,16 @@ class Board
     end
 
     def check_guess(guess_object)
+
+        
+
         guess_array = guess_object.guess_array
         feedback_array = Array.new(4) {nil}
         unmatched_code_tally = @correct_code.tally # critical for pass #2, so that it ignores pass #1 matches
         
         # Pass #1: check for correct code AND correct position
         for i in 0...4
+            
             if @correct_code[i] == guess_array[i]
                 # puts "correct digit at position #{i+1}" #user readable position (1-4)
                 feedback_array[i] = "[]"
@@ -241,6 +233,9 @@ class Board
             
             # perform this check first to prevent a nil > 0 comparison below 
             if tally_result == nil
+                next
+            # skip digits that have already been marked by phase 1 (hard equivalence)
+            elsif feedback_array[i] == "[]"
                 next
             elsif tally_result > 0
                 feedback_array[i] = "()"
@@ -327,11 +322,17 @@ class Guess
 
 end
 
- a_game = Game.new
- a_game.play_computer_guessing_game
+a_game = Game.new
+a_game.play_computer_guessing_game
 
 
-# guess = Guess.new("1234")
-# guess.store_feedback(["[]", "[]", nil, nil])
+# a_board = Board.new
+# a_board.user_defined_code("6663")
 
-# p guess.to_s
+# guess = Guess.new("5566")
+# a_board.check_guess(guess)
+# a_board.store_guess(guess)
+
+# p guess.debug
+
+
